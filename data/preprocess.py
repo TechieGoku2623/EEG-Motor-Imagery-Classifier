@@ -139,15 +139,36 @@ def preprocess_subject(raw_dir: Path, subject: int, runs: list[int]) -> dict | N
 
     if not X_parts:
         return None
-    return {
+    data = {
         "X": np.concatenate(X_parts, axis=0),
         "y": np.concatenate(y_parts, axis=0),
         "runs": np.concatenate(run_parts, axis=0),
         "subject": np.full(sum(len(p) for p in y_parts), subject, dtype=np.int16),
     }
+    return data
 
 
-def save_dataset(out_path: Path, parts: list[dict]) -> dict:
+def balance_rest(part: dict, rng: np.random.Generator) -> dict:
+    """Downsample rest so it matches the largest non-rest class (per subject).
+
+    T0 appears on every trial, so rest is otherwise ~50% of epochs and raw
+    accuracy is dominated by the majority class.
+    """
+    y = part["y"]
+    rest_id = config.CLASS_TO_ID["rest"]
+    rest_idx = np.where(y == rest_id)[0]
+    other_counts = [
+        int(np.sum(y == i))
+        for i in range(len(config.CLASS_NAMES))
+        if i != rest_id
+    ]
+    n_keep = min(len(rest_idx), max(other_counts) if other_counts else 0)
+    keep_rest = rng.choice(rest_idx, size=n_keep, replace=False)
+    keep = np.sort(np.concatenate([keep_rest, np.where(y != rest_id)[0]]))
+    return {k: v[keep] for k, v in part.items()}
+
+
+def save_dataset(out_path: Path, parts: list[dict], extra_meta: dict | None = None) -> dict:
     X = np.concatenate([p["X"] for p in parts], axis=0)
     y = np.concatenate([p["y"] for p in parts], axis=0)
     subjects = np.concatenate([p["subject"] for p in parts], axis=0)
@@ -169,6 +190,8 @@ def save_dataset(out_path: Path, parts: list[dict]) -> dict:
         "tmax": config.EPOCH_TMAX,
         "sfreq": config.SFREQ,
     }
+    if extra_meta:
+        meta.update(extra_meta)
     meta_path = out_path.with_suffix(".json")
     meta_path.write_text(json.dumps(meta, indent=2))
     return meta
@@ -184,9 +207,15 @@ def main() -> None:
         type=Path,
         default=config.DATA_PROCESSED / "epochs.npz",
     )
+    parser.add_argument(
+        "--keep-all-rest",
+        action="store_true",
+        help="Do not downsample T0/rest epochs (accuracy will be majority-class dominated)",
+    )
     args = parser.parse_args()
     subjects = parse_subjects(args.subjects)
     runs = parse_subjects(args.runs)
+    rng = np.random.default_rng(config.RANDOM_STATE)
 
     parts = []
     for subject in tqdm(subjects, desc="subjects"):
@@ -194,16 +223,23 @@ def main() -> None:
         if result is None:
             print(f"No epochs for subject {subject}")
             continue
+        n_raw = len(result["y"])
+        if not args.keep_all_rest:
+            result = balance_rest(result, rng)
         parts.append(result)
         print(
-            f"S{subject:03d}: {len(result['y'])} epochs, "
-            f"shape={result['X'].shape[1:]}"
+            f"S{subject:03d}: {len(result['y'])} epochs "
+            f"(from {n_raw}), shape={result['X'].shape[1:]}"
         )
 
     if not parts:
         raise SystemExit("No epochs were created. Did download succeed?")
 
-    meta = save_dataset(args.out, parts)
+    meta = save_dataset(
+        args.out,
+        parts,
+        extra_meta={"rest_balanced": not args.keep_all_rest},
+    )
     print("Saved", args.out)
     print(json.dumps(meta, indent=2))
 

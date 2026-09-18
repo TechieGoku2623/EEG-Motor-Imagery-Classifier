@@ -7,6 +7,7 @@ import sys
 import time
 from pathlib import Path
 
+import mne
 import numpy as np
 from mne.decoding import CSP
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -22,6 +23,8 @@ if str(ROOT) not in sys.path:
 
 import config
 from models.utils import load_epochs, metrics_dict, write_json
+
+mne.set_log_level("ERROR")
 
 
 def make_pipeline(clf_name: str) -> Pipeline:
@@ -129,6 +132,7 @@ def main() -> None:
         within = within_subject(X, y, subjects, clf_name)
         print(
             f"  pooled acc={within['accuracy']:.3f}  "
+            f"macro-F1={within['macro_f1']:.3f}  "
             f"mean-subject acc={within['mean_subject_accuracy']:.3f}  "
             f"time={within['train_seconds']:.1f}s"
         )
@@ -136,6 +140,7 @@ def main() -> None:
         loso = leave_one_subject_out(X, y, subjects, clf_name)
         print(
             f"  pooled acc={loso['accuracy']:.3f}  "
+            f"macro-F1={loso['macro_f1']:.3f}  "
             f"mean-subject acc={loso['mean_subject_accuracy']:.3f}  "
             f"time={loso['train_seconds']:.1f}s"
         )
@@ -146,7 +151,10 @@ def main() -> None:
     for name, block in results["methods"].items():
         w = block["within_subject"]["accuracy"]
         c = block["cross_subject"]["accuracy"]
-        print(f"  {name}: within={w:.3f}  LOSO={c:.3f}  gap={w-c:.3f}")
+        print(
+            f"  {name}: within={w:.3f} (F1 {block['within_subject']['macro_f1']:.3f})  "
+            f"LOSO={c:.3f} (F1 {block['cross_subject']['macro_f1']:.3f})  gap={w-c:.3f}"
+        )
 
 
 if __name__ == "__main__":

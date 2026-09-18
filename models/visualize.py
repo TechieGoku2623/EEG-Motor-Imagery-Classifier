@@ -96,18 +96,20 @@ def write_report(methods: dict, out_path: Path) -> None:
         "",
         "## Accuracy summary",
         "",
-        "| Method | Within-subject | Cross-subject (LOSO) | Gap | Train time (within / LOSO) |",
-        "|---|---:|---:|---:|---:|",
+        "| Method | Within acc | Within F1 | LOSO acc | LOSO F1 | Gap (acc) | Time within / LOSO |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     best_cross = (-1.0, "")
     for name, block in methods.items():
         w = block["within_subject"]["accuracy"]
         c = block["cross_subject"]["accuracy"]
+        wf = block["within_subject"]["macro_f1"]
+        cf = block["cross_subject"]["macro_f1"]
         tw = block["within_subject"].get("train_seconds")
         tc = block["cross_subject"].get("train_seconds")
         label = "EEGNet" if name == "eegnet" else name.upper()
         lines.append(
-            f"| {label} | {w:.3f} | {c:.3f} | {w-c:.3f} | "
+            f"| {label} | {w:.3f} | {wf:.3f} | {c:.3f} | {cf:.3f} | {w-c:.3f} | "
             f"{tw:.0f}s / {tc:.0f}s |"
         )
         if c > best_cross[0]:

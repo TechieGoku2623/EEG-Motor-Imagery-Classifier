@@ -1,0 +1,22 @@
+{
+  "phase": 1,
+  "n_epochs": 4959,
+  "n_channels": 64,
+  "n_times": 641,
+  "n_subjects": 20,
+  "subjects": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+  "class_names": ["rest", "real_hands", "real_feet", "imagined_hands", "imagined_feet"],
+  "class_counts": {
+    "rest": 1359,
+    "real_hands": 1345,
+    "real_feet": 455,
+    "imagined_hands": 1351,
+    "imagined_feet": 449
+  },
+  "bandpass_hz": [8.0, 30.0],
+  "tmin": 0.0,
+  "tmax": 4.0,
+  "sfreq": 160.0,
+  "rest_balanced": true,
+  "majority_class_baseline": 0.274
+}
