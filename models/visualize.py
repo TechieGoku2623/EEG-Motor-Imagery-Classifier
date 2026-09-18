@@ -131,17 +131,25 @@ def write_report(methods: dict, out_path: Path) -> None:
         "on unseen users, yet most published within-subject numbers overstate field performance.",
         "",
         f"On this run, **{best_cross[1]}** had the strongest cross-subject accuracy "
-        f"({best_cross[0]:.3f}). Even the best LOSO score remains well below within-subject "
-        "performance, which is why clinical/consumer BCIs still rely on per-user calibration "
-        "or transfer-learning / Riemannian alignment rather than a single off-the-shelf model.",
+        f"({best_cross[0]:.3f}). That LOSO number is still far below within-subject "
+        "CSP+LDA (~0.47), which is why clinical/consumer BCIs still rely on per-user "
+        "calibration or transfer-learning / Riemannian alignment rather than a single "
+        "off-the-shelf model.",
+        "",
+        "EEGNet's within-subject score can land *below* its LOSO score: each subject only has "
+        "~250 epochs, which is too little to train a CNN, whereas LOSO trains on the other 19 "
+        "subjects (~4.7k epochs). CSP+LDA is the opposite — it shines with a few minutes of "
+        "calibration data from the same person and collapses across people.",
         "",
         "## Class-level patterns",
         "",
         "- **Rest vs movement** is usually the easiest contrast (mu-rhythm amplitude).",
-        "- **Hands vs feet** is spatially distinct (lateral vs midline motor cortex) and survives "
-        "cross-subject evaluation better than execution vs imagery.",
+        "- **Hands vs feet** is spatially distinct (lateral vs midline motor cortex) but "
+        "feet trials are scarce (only T2 in three runs), so those classes are often absorbed "
+        "into the corresponding hands class.",
         "- **Real vs imagined** of the same limb is the hardest pair: imagery is a weaker, noisier "
-        "version of the same rhythm, so models often collapse those classes.",
+        "version of the same rhythm, so models often confuse those classes with each other "
+        "and with rest.",
         "",
         "Confusion matrices for every method/split are saved under `results/`.",
         "",

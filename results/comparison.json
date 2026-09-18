@@ -1,0 +1,23 @@
+{
+  "lda": {
+    "within_subject_acc": 0.473,
+    "cross_subject_acc": 0.2982456140350877,
+    "gap": 0.17475438596491227,
+    "within_seconds": 35.163022371000125,
+    "cross_seconds": 545.759209286
+  },
+  "svm": {
+    "within_subject_acc": 0.477,
+    "cross_subject_acc": 0.2169792296834039,
+    "gap": 0.2600207703165961,
+    "within_seconds": 31.77790788199991,
+    "cross_seconds": 524.8449073880001
+  },
+  "eegnet": {
+    "within_subject_acc": 0.289,
+    "cross_subject_acc": 0.32244404113732605,
+    "gap": -0.033444041137326075,
+    "within_seconds": 42.69943988299974,
+    "cross_seconds": 937.893277317999
+  }
+}
