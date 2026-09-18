@@ -1,0 +1,88 @@
+cff-version: 1.2.0
+title: EEG Motor-Imagery Classifier
+message: If you use this code, please cite the dataset papers below.
+type: software
+authors:
+  - name: "TechieGoku2623"
+    website: "https://github.com/TechieGoku2623"
+repository-code: "https://github.com/TechieGoku2623/EEG-Motor-Imagery-Classifier"
+url: "https://physionet.org/content/eegmmidb/1.0.0/"
+abstract: >-
+  Five-class EEG motor imagery classification on PhysioNet EEGMMIDB.
+  CSP + LDA/SVM compared with EEGNet, within-subject and leave-one-subject-out.
+keywords:
+  - EEG
+  - BCI
+  - motor imagery
+  - PhysioNet
+  - CSP
+  - EEGNet
+  - MNE-Python
+license: MIT
+references:
+  - type: article
+    title: "BCI2000: a general-purpose brain-computer interface (BCI) system"
+    authors:
+      - family-names: Schalk
+        given-names: Gerwin
+      - family-names: McFarland
+        given-names: Dennis J.
+      - family-names: Hinterberger
+        given-names: Thilo
+      - family-names: Birbaumer
+        given-names: Niels
+      - family-names: Wolpaw
+        given-names: Jonathan R.
+    year: 2004
+    journal: IEEE Transactions on Biomedical Engineering
+    volume: "51"
+    issue: "6"
+    doi: 10.1109/TBME.2004.827072
+  - type: article
+    title: "PhysioBank, PhysioToolkit, and PhysioNet: components of a new research resource for complex physiologic signals"
+    authors:
+      - family-names: Goldberger
+        given-names: Ary L.
+      - family-names: Amaral
+        given-names: Luis A. N.
+      - family-names: Glass
+        given-names: Leon
+      - family-names: Hausdorff
+        given-names: Jeffrey M.
+      - family-names: Ivanov
+        given-names: Plamen Ch.
+      - family-names: Mark
+        given-names: Roger G.
+      - family-names: Mietus
+        given-names: Joseph E.
+      - family-names: Moody
+        given-names: George B.
+      - family-names: Peng
+        given-names: Chung-Kang
+      - family-names: Stanley
+        given-names: H. Eugene
+    year: 2000
+    journal: Circulation
+    volume: "101"
+    issue: "23"
+    doi: 10.1161/01.CIR.101.23.e215
+  - type: article
+    title: "EEGNet: a compact convolutional neural network for EEG-based brain-computer interfaces"
+    authors:
+      - family-names: Lawhern
+        given-names: Vernon J.
+      - family-names: Solon
+        given-names: Amelia J.
+      - family-names: Waytowich
+        given-names: Nicholas R.
+      - family-names: Gordon
+        given-names: Stephen M.
+      - family-names: Hung
+        given-names: Chou P.
+      - family-names: Lance
+        given-names: Brent J.
+    year: 2018
+    journal: Journal of Neural Engineering
+    volume: "15"
+    issue: "5"
+    doi: 10.1088/1741-2552/aace8c
