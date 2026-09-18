@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mne/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Large dataset artifacts
+data/raw/
+data/processed/
+*.edf
+*.npz
+*.pt
+*.pth
+*.ckpt
+
+# Keep result summaries and plots
+!results/.gitkeep
+!results/**/*.json
+!results/**/*.md
+!results/**/*.png
