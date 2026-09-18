@@ -23,6 +23,12 @@ from models.eegnet import EEGNet
 from models.utils import load_epochs, metrics_dict, write_json
 
 
+def maybe_decimate(X: np.ndarray, factor: int) -> np.ndarray:
+    if factor <= 1:
+        return X
+    return X[:, :, ::factor]
+
+
 def device() -> torch.device:
     if torch.cuda.is_available():
         return torch.device("cuda")
@@ -56,8 +62,14 @@ def train_one(
     X_train, X_test = standardize_from_train(X_train, X_test)
     n_channels, n_times = X_train.shape[1], X_train.shape[2]
     n_classes = len(config.CLASS_NAMES)
+    kernel_length = 64 if n_times >= 400 else 32
     dev = device()
-    model = EEGNet(n_channels=n_channels, n_samples=n_times, n_classes=n_classes).to(dev)
+    model = EEGNet(
+        n_channels=n_channels,
+        n_samples=n_times,
+        n_classes=n_classes,
+        kernel_length=kernel_length,
+    ).to(dev)
     # Materialize LazyLinear
     with torch.no_grad():
         model(torch.from_numpy(X_train[:1]).to(dev))
@@ -170,20 +182,24 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=15)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=1e-3)
-    parser.add_argument("--patience", type=int, default=5)
+    parser.add_argument("--patience", type=int, default=4)
+    parser.add_argument("--decimate", type=int, default=2, help="Keep every Nth sample (2 → 80 Hz)")
     args = parser.parse_args()
 
     ds = load_epochs(args.data)
     X, y, subjects = ds["X"], ds["y"], ds["subjects"]
+    X = maybe_decimate(X, args.decimate)
+    torch.set_num_threads(max(1, (torch.get_num_threads())))
     print(
         f"Loaded {len(y)} epochs on {device()}, X={X.shape}, "
-        f"subjects={len(np.unique(subjects))}"
+        f"subjects={len(np.unique(subjects))}, decimate={args.decimate}"
     )
 
     print("\n=== EEGNet within-subject ===")
     within = within_subject(X, y, subjects, args.epochs, args.batch_size, args.lr, args.patience)
     print(
         f"  pooled acc={within['accuracy']:.3f}  "
+        f"macro-F1={within['macro_f1']:.3f}  "
         f"mean-subject acc={within['mean_subject_accuracy']:.3f}  "
         f"time={within['train_seconds']:.1f}s"
     )
@@ -192,6 +208,7 @@ def main() -> None:
     loso = leave_one_subject_out(X, y, subjects, args.epochs, args.batch_size, args.lr, args.patience)
     print(
         f"  pooled acc={loso['accuracy']:.3f}  "
+        f"macro-F1={loso['macro_f1']:.3f}  "
         f"mean-subject acc={loso['mean_subject_accuracy']:.3f}  "
         f"time={loso['train_seconds']:.1f}s"
     )
@@ -200,6 +217,7 @@ def main() -> None:
         "class_names": config.CLASS_NAMES,
         "device": str(device()),
         "epochs": args.epochs,
+        "decimate": args.decimate,
         "methods": {"eegnet": {"within_subject": within, "cross_subject": loso}},
     }
     write_json(args.out, results)
