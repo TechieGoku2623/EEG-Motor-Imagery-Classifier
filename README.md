@@ -7,6 +7,12 @@
 [![MNE](https://img.shields.io/badge/EEG-MNE--Python-1f77b4.svg)](https://mne.tools)
 [![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C.svg?logo=pytorch&logoColor=white)](https://pytorch.org)
 
+<p align="center">
+  <img src="docs/demo.gif" alt="Within-subject versus held-out motor imagery" width="880"/>
+</p>
+
+[Play the video](docs/demo.mp4). The numbers are the results already in this repository: CSP + SVM at 47.7% on the same person, EEGNet at 32.2% on a held-out person.
+
 My project on the [PhysioNet EEG Motor Movement/Imagery dataset](https://physionet.org/content/eegmmidb/1.0.0/).
 
 I classify 64-channel EEG into five labels: rest, real hands, real feet, imagined hands, imagined feet. The idea is the same as a motor-imagery BCI: guess what the person is doing (or imagining) from the scalp signal.
